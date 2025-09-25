@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: hr-mcp-server
+metadata:
+  template: hr-mcp-server@0.0.1-beta
+
+# Infrastructure configuration
+infra:
+  provider: bicep
+  path: ./infra
+
+# Service configuration
+services:
+  web:
+    project: ./
+    language: dotnet
+    host: appservice
