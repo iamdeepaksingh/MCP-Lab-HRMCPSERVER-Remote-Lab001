@@ -6,6 +6,36 @@ param resourceToken string
 var abbrs = loadJsonContent('./abbreviations.json')
 var tags = { 'azd-env-name': environmentName }
 
+// Create Azure Storage Account for persistent data
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: '${abbrs.storageStorageAccounts}${resourceToken}'
+  location: location
+  tags: tags
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    accessTier: 'Hot'
+    allowBlobPublicAccess: false
+    minimumTlsVersion: 'TLS1_2'
+  }
+}
+
+// Create blob container for candidates data
+resource blobServices 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+resource candidatesContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
+  parent: blobServices
+  name: 'candidates-data'
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
 // App Service Plan for hosting the .NET application
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: '${abbrs.webServerFarms}${resourceToken}'
@@ -54,6 +84,14 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
         {
           name: 'HRMCPServer__CandidatesPath'
           value: './Data/candidates.json'
+        }
+        {
+          name: 'Azure__StorageConnectionString'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
+        }
+        {
+          name: 'Azure__BlobContainerName'
+          value: 'candidates-data'
         }
         {
           name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'

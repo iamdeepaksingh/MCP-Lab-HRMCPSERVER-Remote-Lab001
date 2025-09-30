@@ -367,3 +367,28 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# SECURITY: Sensitive configuration files
+# Never commit files with connection strings or secrets
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/appsettings.Production.json
+
+# Azure connection strings and keys
+**/*connectionstring*
+**/*accountkey*
+
+# Log files and debug outputs
+app-logs.zip
+*.log.zip
+debug-logs/
+
+# Environment-specific secrets
+.env
+.env.local
+.env.development
+.env.production
+*.secrets.json
+
+# Azure CLI cache
+.azure/
